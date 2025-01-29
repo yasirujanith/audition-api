@@ -1,45 +1,109 @@
 package com.audition.integration;
 
 import com.audition.common.exception.SystemException;
+import com.audition.common.logging.AuditionLogger;
 import com.audition.model.AuditionPost;
-import java.util.ArrayList;
+import com.audition.model.Comment;
+import java.util.Collections;
 import java.util.List;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.apache.commons.lang3.ObjectUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.core.ParameterizedTypeReference;
+import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestTemplate;
+import org.springframework.web.util.UriComponentsBuilder;
 
 @Component
 public class AuditionIntegrationClient {
 
+    private static final Logger logger = LoggerFactory.getLogger(AuditionIntegrationClient.class);
+    private static final String POSTS_URL = "https://jsonplaceholder.typicode.com/posts";
+    private static final String COMMENTS_URL = "https://jsonplaceholder.typicode.com/comments";
+    private final RestTemplate restTemplate;
+    private final AuditionLogger auditionLogger;
 
-    @Autowired
-    private RestTemplate restTemplate;
+    public AuditionIntegrationClient(RestTemplate restTemplate, AuditionLogger auditionLogger) {
+        this.restTemplate = restTemplate;
+        this.auditionLogger = auditionLogger;
+    }
 
     public List<AuditionPost> getPosts() {
-        // TODO make RestTemplate call to get Posts from https://jsonplaceholder.typicode.com/posts
-
-        return new ArrayList<>();
+        try {
+            ResponseEntity<List<AuditionPost>> response = restTemplate.exchange(POSTS_URL, HttpMethod.GET, null,
+                new ParameterizedTypeReference<>() {
+                });
+            return ObjectUtils.isNotEmpty(response.getBody()) ? response.getBody() : Collections.emptyList();
+        } catch (HttpClientErrorException e) {
+            handleHttpClientErrorException("Error fetching posts", e);
+        } catch (Exception e) {
+            handleUnexpectedException("An unexpected error occurred fetching posts", e);
+        }
+        return Collections.emptyList();
     }
 
     public AuditionPost getPostById(final String id) {
-        // TODO get post by post ID call from https://jsonplaceholder.typicode.com/posts/
         try {
-            return new AuditionPost();
-        } catch (final HttpClientErrorException e) {
+            String url = UriComponentsBuilder.fromHttpUrl(POSTS_URL).pathSegment(id).toUriString();
+            return restTemplate.getForObject(url, AuditionPost.class);
+        } catch (HttpClientErrorException e) {
             if (e.getStatusCode() == HttpStatus.NOT_FOUND) {
-                throw new SystemException("Cannot find a Post with id " + id, "Resource Not Found",
-                    404);
+                throw new SystemException("Cannot find a Post with id " + id, SystemException.RESOURCE_NOT_FOUND,
+                    HttpStatus.NOT_FOUND.value(), e);
             } else {
-                // TODO Find a better way to handle the exception so that the original error message is not lost. Feel free to change this function.
-                throw new SystemException("Unknown Error message");
+                handleHttpClientErrorException("Error fetching post with id " + id, e);
             }
+        } catch (Exception e) {
+            handleUnexpectedException("An unexpected error occurred fetching post with id " + id, e);
         }
+        return null;
     }
 
-    // TODO Write a method GET comments for a post from https://jsonplaceholder.typicode.com/posts/{postId}/comments - the comments must be returned as part of the post.
+    public List<Comment> getCommentsForPost(final String postId) {
+        try {
+            String url = UriComponentsBuilder.fromHttpUrl(POSTS_URL).pathSegment(postId).pathSegment("comments")
+                .toUriString();
+            ResponseEntity<List<Comment>> response = restTemplate.exchange(url, HttpMethod.GET, null,
+                new ParameterizedTypeReference<>() {
+                });
+            return ObjectUtils.isNotEmpty(response.getBody()) ? response.getBody() : Collections.emptyList();
+        } catch (HttpClientErrorException e) {
+            handleHttpClientErrorException("Error fetching comments for post with id " + postId, e);
+        } catch (Exception e) {
+            handleUnexpectedException("An unexpected error occurred fetching comments for post with id " + postId, e);
+        }
+        return Collections.emptyList();
+    }
 
-    // TODO write a method. GET comments for a particular Post from https://jsonplaceholder.typicode.com/comments?postId={postId}.
-    // The comments are a separate list that needs to be returned to the API consumers. Hint: this is not part of the AuditionPost pojo.
+    public List<Comment> getCommentsByPostId(final String postId) {
+        try {
+            String url = UriComponentsBuilder.fromHttpUrl(COMMENTS_URL).queryParam("postId", postId).toUriString();
+            ResponseEntity<List<Comment>> response = restTemplate.exchange(url, HttpMethod.GET, null,
+                new ParameterizedTypeReference<>() {
+                });
+            return ObjectUtils.isNotEmpty(response.getBody()) ? response.getBody() : Collections.emptyList();
+        } catch (HttpClientErrorException e) {
+            handleHttpClientErrorException("Error fetching comments for post with id " + postId, e);
+        } catch (Exception e) {
+            handleUnexpectedException("An unexpected error occurred fetching comments for post with id " + postId, e);
+        }
+        return Collections.emptyList();
+    }
+
+    private void handleHttpClientErrorException(String message, HttpClientErrorException e) {
+        String errorMessage = message + ": " + e.getMessage();
+        auditionLogger.logErrorWithException(logger, errorMessage, e);
+        throw new SystemException(errorMessage, SystemException.HTTP_CLIENT_ERROR, e.getStatusCode().value(), e);
+    }
+
+    private void handleUnexpectedException(String message, Exception e) {
+        String errorMessage = message + ": " + e.getMessage();
+        auditionLogger.logErrorWithException(logger, errorMessage, e);
+        throw new SystemException(errorMessage, SystemException.UNEXPECTED_ERROR,
+            HttpStatus.INTERNAL_SERVER_ERROR.value(), e);
+    }
 }
