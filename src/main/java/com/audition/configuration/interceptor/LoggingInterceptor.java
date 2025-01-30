@@ -38,6 +38,7 @@ public class LoggingInterceptor implements ClientHttpRequestInterceptor {
     private void logResponse(final ClientHttpResponse response) throws IOException {
         auditionLogger.info(LOG, "Response Status Code: {}", response.getStatusCode());
         auditionLogger.info(LOG, "Response Status Text: {}", response.getStatusText());
+        // When logging the response body, ensure that sensitive information is masked
         auditionLogger.info(LOG, "Response Body: {}",
             new String(response.getBody().readAllBytes(), StandardCharsets.UTF_8));
     }
