@@ -4,6 +4,7 @@ import com.audition.common.exception.SystemException;
 import com.audition.common.logging.AuditionLogger;
 import com.audition.model.AuditionPost;
 import com.audition.model.Comment;
+import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;
 import java.util.Collections;
 import java.util.List;
 import org.apache.commons.lang3.ObjectUtils;
@@ -32,6 +33,7 @@ public class AuditionIntegrationClient {
         this.auditionLogger = auditionLogger;
     }
 
+    @CircuitBreaker(name = "postsService", fallbackMethod = "getPostsFallback")
     public List<AuditionPost> getPosts() {
         try {
             ResponseEntity<List<AuditionPost>> response = restTemplate.exchange(POSTS_URL, HttpMethod.GET, null,
@@ -46,6 +48,7 @@ public class AuditionIntegrationClient {
         return Collections.emptyList();
     }
 
+    @CircuitBreaker(name = "postsService", fallbackMethod = "getPostByIdFallback")
     public AuditionPost getPostById(final String id) {
         try {
             String url = UriComponentsBuilder.fromHttpUrl(POSTS_URL).pathSegment(id).toUriString();
@@ -63,6 +66,7 @@ public class AuditionIntegrationClient {
         return null;
     }
 
+    @CircuitBreaker(name = "commentsService", fallbackMethod = "getCommentsForPostFallback")
     public List<Comment> getCommentsForPost(final String postId) {
         try {
             String url = UriComponentsBuilder.fromHttpUrl(POSTS_URL).pathSegment(postId).pathSegment("comments")
@@ -79,6 +83,7 @@ public class AuditionIntegrationClient {
         return Collections.emptyList();
     }
 
+    @CircuitBreaker(name = "commentsService", fallbackMethod = "getCommentsByPostIdFallback")
     public List<Comment> getCommentsByPostId(final String postId) {
         try {
             String url = UriComponentsBuilder.fromHttpUrl(COMMENTS_URL).queryParam("postId", postId).toUriString();
@@ -105,5 +110,30 @@ public class AuditionIntegrationClient {
         auditionLogger.error(LOG, errorMessage);
         throw new SystemException(errorMessage, SystemException.UNEXPECTED_ERROR,
             HttpStatus.INTERNAL_SERVER_ERROR.value(), e);
+    }
+
+    private List<AuditionPost> getPostsFallback(Throwable t) {
+        logFallbackError("getPosts", "N/A", t);
+        return Collections.emptyList();
+    }
+
+    private AuditionPost getPostByIdFallback(String id, Throwable t) {
+        logFallbackError("getPostById", id, t);
+        return null;
+    }
+
+    private List<Comment> getCommentsForPostFallback(String postId, Throwable t) {
+        logFallbackError("getCommentsForPost", postId, t);
+        return Collections.emptyList();
+    }
+
+    private List<Comment> getCommentsByPostIdFallback(String postId, Throwable t) {
+        logFallbackError("getCommentsByPostId", postId, t);
+        return Collections.emptyList();
+    }
+
+    private void logFallbackError(String methodName, String identifier, Throwable t) {
+        auditionLogger.error(LOG,
+            "Fallback method for " + methodName + " triggered for id " + identifier + " due to: " + t.getMessage());
     }
 }

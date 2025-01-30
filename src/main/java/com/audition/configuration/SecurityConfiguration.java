@@ -14,10 +14,12 @@ public class SecurityConfiguration {
             .authorizeHttpRequests(auth -> auth
                 .requestMatchers("/actuator/health", "/actuator/info").permitAll()
                 .requestMatchers("/actuator/**").authenticated()
+                .requestMatchers("/posts/**").permitAll()
+                .requestMatchers("/comments/**").permitAll()
             )
             .httpBasic();
 
         return http.build();
     }
-    
+
 }
