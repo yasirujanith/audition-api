@@ -30,6 +30,7 @@ repositories {
 ext {
     set('springCloudVersion', "2022.0.1")
     set('logbackVersion', "1.4.5")
+    set('logbackEncoderVersion', "7.4")
     set('slf4jVersion', "2.0.5")
     set('springdocVersion', "2.0.2")
 }
@@ -60,6 +61,8 @@ dependencies {
     implementation "org.slf4j:slf4j-api:${slf4jVersion}"
     implementation "ch.qos.logback:logback-core:${logbackVersion}"
     implementation "ch.qos.logback:logback-classic:${logbackVersion}"
+    // adding the logstash-logback-encoder to resolve the ClassNotFoundException for LoggingEventCompositeJsonEncoder
+    implementation "net.logstash.logback:logstash-logback-encoder:${logbackEncoderVersion}"
 
     testImplementation "org.springframework.boot:spring-boot-starter-test"
     testImplementation "io.projectreactor:reactor-test"

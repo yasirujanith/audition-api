@@ -197,6 +197,16 @@ Trace and span details are added to the response headers to facilitate distribut
 The application employs interceptors to capture trace details and log the request and response information of
 third-party services. The `LoggingInterceptor` and `TracingInterceptor` classes facilitate these functionalities.
 
+## Logging
+
+The application uses Logback for logging and provides three types of log appenders:
+
+1. **console**: Logs are output to the console.
+2. **flatfile**: Logs are written to a file with a rolling policy based on time.
+3. **logstash**: Logs are written to a file in JSON format, suitable for log aggregation tools like Logstash.
+
+The logstash appender includes trace and span IDs to facilitate distributed tracing.
+
 ## Code Quality Tools
 
 The project uses the following code quality tools:

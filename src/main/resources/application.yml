@@ -1,6 +1,6 @@
 spring:
   application:
-    name: audition-api
+    name: "audition-api"
   config:
     import: "optional:configserver:"
   main:

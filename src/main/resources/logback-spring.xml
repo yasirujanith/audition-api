@@ -61,6 +61,9 @@
   <property name="CONSOLE_LOG_PATTERN"
     value="%clr(%d{yyyy-MM-dd HH:mm:ss.SSS}){faint} %clr(${LOG_LEVEL_PATTERN:-%5p}) %clr(${PID:- }){magenta} %clr(---){faint} %clr([%15.15t]){faint} %clr(%-40.40logger{39}){cyan} %clr(:){faint} %m%n${LOG_EXCEPTION_CONVERSION_WORD:-%wEx}"/>
 
+  <!-- Retrieves the application name from the Spring context and assigns it to the 'springAppName' property -->
+  <springProperty name="springAppName" scope="context" source="spring.application.name"/>
+
   <!-- Appender to log to file -->
   <property name="LOG_FILE" value="${BUILD_FOLDER:-build}/${springAppName}"/>
 
@@ -68,9 +71,7 @@
   <root level="INFO">
     <appender-ref ref="console"/>
     <!-- uncomment this to have also JSON logs -->
-    <!--<appender-ref ref="logstash"/>-->
-    <!--<appender-ref ref="flatfile"/>-->
+    <appender-ref ref="logstash"/>
+    <appender-ref ref="flatfile"/>
   </root>
-
-  <springProperty name="springAppName" scope="context" source="spring.application.name"/>
 </configuration>
