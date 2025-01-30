@@ -21,7 +21,7 @@ import org.springframework.web.util.UriComponentsBuilder;
 @Component
 public class AuditionIntegrationClient {
 
-    private static final Logger logger = LoggerFactory.getLogger(AuditionIntegrationClient.class);
+    private static final Logger LOG = LoggerFactory.getLogger(AuditionIntegrationClient.class);
     private static final String POSTS_URL = "https://jsonplaceholder.typicode.com/posts";
     private static final String COMMENTS_URL = "https://jsonplaceholder.typicode.com/comments";
     private final RestTemplate restTemplate;
@@ -96,13 +96,13 @@ public class AuditionIntegrationClient {
 
     private void handleHttpClientErrorException(String message, HttpClientErrorException e) {
         String errorMessage = message + ": " + e.getMessage();
-        auditionLogger.logErrorWithException(logger, errorMessage, e);
+        auditionLogger.error(LOG, errorMessage);
         throw new SystemException(errorMessage, SystemException.HTTP_CLIENT_ERROR, e.getStatusCode().value(), e);
     }
 
     private void handleUnexpectedException(String message, Exception e) {
         String errorMessage = message + ": " + e.getMessage();
-        auditionLogger.logErrorWithException(logger, errorMessage, e);
+        auditionLogger.error(LOG, errorMessage);
         throw new SystemException(errorMessage, SystemException.UNEXPECTED_ERROR,
             HttpStatus.INTERNAL_SERVER_ERROR.value(), e);
     }

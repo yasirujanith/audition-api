@@ -21,7 +21,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 public class AuditionController {
 
-    private static final Logger logger = LoggerFactory.getLogger(AuditionController.class);
+    private static final Logger LOG = LoggerFactory.getLogger(AuditionController.class);
     private final AuditionService auditionService;
     private final AuditionLogger auditionLogger;
 
@@ -37,11 +37,11 @@ public class AuditionController {
         @RequestParam(value = "title", required = false) String title,
         @RequestParam(value = "body", required = false) String body) {
 
-        auditionLogger.info(logger,
+        auditionLogger.info(LOG,
             "Fetching posts with userId: " + userId + ", id: " + id + ", title: " + title + ", body: " + body);
         List<AuditionPost> posts = auditionService.getPosts(userId, id, title, body);
         if (ObjectUtils.isEmpty(posts)) {
-            auditionLogger.info(logger, "No posts found with the given parameters.");
+            auditionLogger.info(LOG, "No posts found with the given parameters.");
             return ResponseEntity.noContent().build();
         }
         return ResponseEntity.ok(posts);
@@ -51,10 +51,10 @@ public class AuditionController {
     public ResponseEntity<AuditionPost> getPostById(
         @PathVariable("id") @NotNull @Pattern(regexp = "\\d+", message = "Post ID must be a valid integer") final String postId) {
 
-        auditionLogger.info(logger, "Fetching post with id: {}", postId);
+        auditionLogger.info(LOG, "Fetching post with id: {}", postId);
         AuditionPost auditionPost = auditionService.getPostById(postId);
         if (ObjectUtils.isEmpty(auditionPost)) {
-            auditionLogger.info(logger, "No post found with id: {}", postId);
+            auditionLogger.info(LOG, "No post found with id: {}", postId);
             return ResponseEntity.noContent().build();
         }
         return ResponseEntity.ok(auditionPost);
@@ -64,10 +64,10 @@ public class AuditionController {
     public ResponseEntity<List<Comment>> getCommentsForPost(
         @PathVariable("id") @NotNull @Pattern(regexp = "\\d+", message = "Post ID must be a valid integer") final String postId) {
 
-        auditionLogger.info(logger, "Fetching comments for post with id: {}", postId);
+        auditionLogger.info(LOG, "Fetching comments for post with id: {}", postId);
         List<Comment> comments = auditionService.getCommentsForPost(postId);
         if (ObjectUtils.isEmpty(comments)) {
-            auditionLogger.info(logger, "No comments found for post with id: {}", postId);
+            auditionLogger.info(LOG, "No comments found for post with id: {}", postId);
             return ResponseEntity.noContent().build();
         }
         return ResponseEntity.ok(comments);
@@ -77,10 +77,10 @@ public class AuditionController {
     public ResponseEntity<List<Comment>> getCommentsByPostId(
         @RequestParam("postId") @NotNull @Pattern(regexp = "\\d+", message = "Post ID must be a valid integer") final String postId) {
 
-        auditionLogger.info(logger, "Fetching comments with postId: {}", postId);
+        auditionLogger.info(LOG, "Fetching comments with postId: {}", postId);
         List<Comment> comments = auditionService.getCommentsByPostId(postId);
         if (ObjectUtils.isEmpty(comments)) {
-            auditionLogger.info(logger, "No comments found with postId: {}", postId);
+            auditionLogger.info(LOG, "No comments found with postId: {}", postId);
             return ResponseEntity.noContent().build();
         }
         return ResponseEntity.ok(comments);
