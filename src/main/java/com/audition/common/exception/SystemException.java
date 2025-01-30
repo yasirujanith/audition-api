@@ -3,6 +3,7 @@ package com.audition.common.exception;
 import lombok.Getter;
 
 @Getter
+@SuppressWarnings("PMD.DataClass")
 public class SystemException extends RuntimeException {
 
     private static final long serialVersionUID = -5876728854007114881L;

@@ -9,6 +9,8 @@ import com.fasterxml.jackson.databind.PropertyNamingStrategies;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import java.text.SimpleDateFormat;
 import java.util.Collections;
+import java.util.Locale;
+import lombok.AllArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.client.BufferingClientHttpRequestFactory;
@@ -18,19 +20,16 @@ import org.springframework.web.client.RestTemplate;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
 @Configuration
+@AllArgsConstructor
 public class WebServiceConfiguration implements WebMvcConfigurer {
 
     private static final String YEAR_MONTH_DAY_PATTERN = "yyyy-MM-dd";
     private final AuditionLogger auditionLogger;
 
-    public WebServiceConfiguration(AuditionLogger auditionLogger) {
-        this.auditionLogger = auditionLogger;
-    }
-
     @Bean
     public ObjectMapper objectMapper() {
-        ObjectMapper objectMapper = new ObjectMapper();
-        objectMapper.setDateFormat(new SimpleDateFormat(YEAR_MONTH_DAY_PATTERN));
+        final ObjectMapper objectMapper = new ObjectMapper();
+        objectMapper.setDateFormat(new SimpleDateFormat(YEAR_MONTH_DAY_PATTERN, Locale.getDefault()));
         objectMapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
         objectMapper.setPropertyNamingStrategy(PropertyNamingStrategies.LOWER_CAMEL_CASE);
         objectMapper.setSerializationInclusion(JsonInclude.Include.NON_NULL);
@@ -40,7 +39,7 @@ public class WebServiceConfiguration implements WebMvcConfigurer {
     }
 
     @Bean
-    public RestTemplate restTemplate(ObjectMapper objectMapper) {
+    public RestTemplate restTemplate(final ObjectMapper objectMapper) {
         final RestTemplate restTemplate = new RestTemplate(
             new BufferingClientHttpRequestFactory(createClientFactory()));
         restTemplate.getMessageConverters().add(0, new MappingJackson2HttpMessageConverter(objectMapper));

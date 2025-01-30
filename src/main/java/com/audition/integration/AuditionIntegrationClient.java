@@ -7,6 +7,7 @@ import com.audition.model.Comment;
 import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;
 import java.util.Collections;
 import java.util.List;
+import lombok.AllArgsConstructor;
 import org.apache.commons.lang3.ObjectUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -16,10 +17,13 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.HttpClientErrorException;
+import org.springframework.web.client.RestClientException;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.util.UriComponentsBuilder;
 
 @Component
+@AllArgsConstructor
+@SuppressWarnings({"PMD.UnusedPrivateMethod", "PMD.GuardLogStatement"})
 public class AuditionIntegrationClient {
 
     private static final Logger LOG = LoggerFactory.getLogger(AuditionIntegrationClient.class);
@@ -28,21 +32,16 @@ public class AuditionIntegrationClient {
     private final RestTemplate restTemplate;
     private final AuditionLogger auditionLogger;
 
-    public AuditionIntegrationClient(RestTemplate restTemplate, AuditionLogger auditionLogger) {
-        this.restTemplate = restTemplate;
-        this.auditionLogger = auditionLogger;
-    }
-
     @CircuitBreaker(name = "postsService", fallbackMethod = "getPostsFallback")
     public List<AuditionPost> getPosts() {
         try {
-            ResponseEntity<List<AuditionPost>> response = restTemplate.exchange(POSTS_URL, HttpMethod.GET, null,
+            final ResponseEntity<List<AuditionPost>> response = restTemplate.exchange(POSTS_URL, HttpMethod.GET, null,
                 new ParameterizedTypeReference<>() {
                 });
             return ObjectUtils.isNotEmpty(response.getBody()) ? response.getBody() : Collections.emptyList();
         } catch (HttpClientErrorException e) {
             handleHttpClientErrorException("Error fetching posts", e);
-        } catch (Exception e) {
+        } catch (RestClientException e) {
             handleUnexpectedException("An unexpected error occurred fetching posts", e);
         }
         return Collections.emptyList();
@@ -51,7 +50,7 @@ public class AuditionIntegrationClient {
     @CircuitBreaker(name = "postsService", fallbackMethod = "getPostByIdFallback")
     public AuditionPost getPostById(final String id) {
         try {
-            String url = UriComponentsBuilder.fromHttpUrl(POSTS_URL).pathSegment(id).toUriString();
+            final String url = UriComponentsBuilder.fromHttpUrl(POSTS_URL).pathSegment(id).toUriString();
             return restTemplate.getForObject(url, AuditionPost.class);
         } catch (HttpClientErrorException e) {
             if (e.getStatusCode() == HttpStatus.NOT_FOUND) {
@@ -60,7 +59,7 @@ public class AuditionIntegrationClient {
             } else {
                 handleHttpClientErrorException("Error fetching post with id " + id, e);
             }
-        } catch (Exception e) {
+        } catch (RestClientException e) {
             handleUnexpectedException("An unexpected error occurred fetching post with id " + id, e);
         }
         return null;
@@ -69,15 +68,15 @@ public class AuditionIntegrationClient {
     @CircuitBreaker(name = "commentsService", fallbackMethod = "getCommentsForPostFallback")
     public List<Comment> getCommentsForPost(final String postId) {
         try {
-            String url = UriComponentsBuilder.fromHttpUrl(POSTS_URL).pathSegment(postId).pathSegment("comments")
+            final String url = UriComponentsBuilder.fromHttpUrl(POSTS_URL).pathSegment(postId).pathSegment("comments")
                 .toUriString();
-            ResponseEntity<List<Comment>> response = restTemplate.exchange(url, HttpMethod.GET, null,
+            final ResponseEntity<List<Comment>> response = restTemplate.exchange(url, HttpMethod.GET, null,
                 new ParameterizedTypeReference<>() {
                 });
             return ObjectUtils.isNotEmpty(response.getBody()) ? response.getBody() : Collections.emptyList();
         } catch (HttpClientErrorException e) {
             handleHttpClientErrorException("Error fetching comments for post with id " + postId, e);
-        } catch (Exception e) {
+        } catch (RestClientException e) {
             handleUnexpectedException("An unexpected error occurred fetching comments for post with id " + postId, e);
         }
         return Collections.emptyList();
@@ -86,53 +85,54 @@ public class AuditionIntegrationClient {
     @CircuitBreaker(name = "commentsService", fallbackMethod = "getCommentsByPostIdFallback")
     public List<Comment> getCommentsByPostId(final String postId) {
         try {
-            String url = UriComponentsBuilder.fromHttpUrl(COMMENTS_URL).queryParam("postId", postId).toUriString();
-            ResponseEntity<List<Comment>> response = restTemplate.exchange(url, HttpMethod.GET, null,
+            final String url = UriComponentsBuilder.fromHttpUrl(COMMENTS_URL).queryParam("postId", postId)
+                .toUriString();
+            final ResponseEntity<List<Comment>> response = restTemplate.exchange(url, HttpMethod.GET, null,
                 new ParameterizedTypeReference<>() {
                 });
             return ObjectUtils.isNotEmpty(response.getBody()) ? response.getBody() : Collections.emptyList();
         } catch (HttpClientErrorException e) {
             handleHttpClientErrorException("Error fetching comments for post with id " + postId, e);
-        } catch (Exception e) {
+        } catch (RestClientException e) {
             handleUnexpectedException("An unexpected error occurred fetching comments for post with id " + postId, e);
         }
         return Collections.emptyList();
     }
 
-    private void handleHttpClientErrorException(String message, HttpClientErrorException e) {
-        String errorMessage = message + ": " + e.getMessage();
+    private void handleHttpClientErrorException(final String message, final HttpClientErrorException e) {
+        final String errorMessage = message + ": " + e.getMessage();
         auditionLogger.error(LOG, errorMessage);
         throw new SystemException(errorMessage, SystemException.HTTP_CLIENT_ERROR, e.getStatusCode().value(), e);
     }
 
-    private void handleUnexpectedException(String message, Exception e) {
-        String errorMessage = message + ": " + e.getMessage();
+    private void handleUnexpectedException(final String message, final Exception e) {
+        final String errorMessage = message + ": " + e.getMessage();
         auditionLogger.error(LOG, errorMessage);
         throw new SystemException(errorMessage, SystemException.UNEXPECTED_ERROR,
             HttpStatus.INTERNAL_SERVER_ERROR.value(), e);
     }
 
-    private List<AuditionPost> getPostsFallback(Throwable t) {
+    private List<AuditionPost> getPostsFallback(final Throwable t) {
         logFallbackError("getPosts", "N/A", t);
         return Collections.emptyList();
     }
 
-    private AuditionPost getPostByIdFallback(String id, Throwable t) {
+    private AuditionPost getPostByIdFallback(final String id, final Throwable t) {
         logFallbackError("getPostById", id, t);
         return null;
     }
 
-    private List<Comment> getCommentsForPostFallback(String postId, Throwable t) {
+    private List<Comment> getCommentsForPostFallback(final String postId, final Throwable t) {
         logFallbackError("getCommentsForPost", postId, t);
         return Collections.emptyList();
     }
 
-    private List<Comment> getCommentsByPostIdFallback(String postId, Throwable t) {
+    private List<Comment> getCommentsByPostIdFallback(final String postId, final Throwable t) {
         logFallbackError("getCommentsByPostId", postId, t);
         return Collections.emptyList();
     }
 
-    private void logFallbackError(String methodName, String identifier, Throwable t) {
+    private void logFallbackError(final String methodName, final String identifier, final Throwable t) {
         auditionLogger.error(LOG,
             "Fallback method for " + methodName + " triggered for id " + identifier + " due to: " + t.getMessage());
     }

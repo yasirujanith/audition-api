@@ -6,6 +6,7 @@ import static org.springframework.http.HttpStatus.METHOD_NOT_ALLOWED;
 import com.audition.common.exception.SystemException;
 import com.audition.common.logging.AuditionLogger;
 import io.micrometer.common.util.StringUtils;
+import lombok.AllArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatusCode;
@@ -16,8 +17,9 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler;
 
-
 @ControllerAdvice
+@AllArgsConstructor
+@SuppressWarnings("PMD.GuardLogStatement")
 public class ExceptionControllerAdvice extends ResponseEntityExceptionHandler {
 
     public static final String DEFAULT_TITLE = "API Error Occurred";
@@ -25,10 +27,6 @@ public class ExceptionControllerAdvice extends ResponseEntityExceptionHandler {
     private static final String ERROR_MESSAGE = " Error Code from Exception could not be mapped to a valid HttpStatus Code - ";
     private static final String DEFAULT_MESSAGE = "API Error occurred. Please contact support or administrator.";
     private final AuditionLogger auditionLogger;
-
-    public ExceptionControllerAdvice(AuditionLogger auditionLogger) {
-        this.auditionLogger = auditionLogger;
-    }
 
     @ExceptionHandler(HttpClientErrorException.class)
     ProblemDetail handleHttpClientException(final HttpClientErrorException e) {
