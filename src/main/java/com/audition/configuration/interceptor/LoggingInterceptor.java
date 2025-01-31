@@ -3,7 +3,7 @@ package com.audition.configuration.interceptor;
 import com.audition.common.logging.AuditionLogger;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
-import lombok.AllArgsConstructor;
+import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpRequest;
@@ -12,7 +12,7 @@ import org.springframework.http.client.ClientHttpRequestInterceptor;
 import org.springframework.http.client.ClientHttpResponse;
 import org.springframework.lang.NonNull;
 
-@AllArgsConstructor
+@RequiredArgsConstructor
 @SuppressWarnings("PMD.GuardLogStatement")
 public class LoggingInterceptor implements ClientHttpRequestInterceptor {
 

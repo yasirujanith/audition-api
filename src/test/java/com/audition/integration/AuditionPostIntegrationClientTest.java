@@ -1,5 +1,8 @@
 package com.audition.integration;
 
+import static com.audition.constant.ErrorMessages.HTTP_CLIENT_ERROR;
+import static com.audition.constant.ErrorMessages.RESOURCE_NOT_FOUND;
+import static com.audition.constant.ErrorMessages.UNEXPECTED_ERROR;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
@@ -75,7 +78,7 @@ class AuditionPostIntegrationClientTest {
         });
 
         // Assert
-        assertEquals(SystemException.HTTP_CLIENT_ERROR, exception.getTitle());
+        assertEquals(HTTP_CLIENT_ERROR, exception.getTitle());
     }
 
     @Test
@@ -90,7 +93,7 @@ class AuditionPostIntegrationClientTest {
         });
 
         // Assert
-        assertEquals(SystemException.UNEXPECTED_ERROR, exception.getTitle());
+        assertEquals(UNEXPECTED_ERROR, exception.getTitle());
     }
 
     @Test
@@ -118,7 +121,7 @@ class AuditionPostIntegrationClientTest {
         });
 
         // Assert
-        assertEquals(SystemException.RESOURCE_NOT_FOUND, thrownException.getTitle());
+        assertEquals(RESOURCE_NOT_FOUND, thrownException.getTitle());
     }
 
     @Test
@@ -133,7 +136,7 @@ class AuditionPostIntegrationClientTest {
         });
 
         // Assert
-        assertEquals(SystemException.HTTP_CLIENT_ERROR, thrownException.getTitle());
+        assertEquals(HTTP_CLIENT_ERROR, thrownException.getTitle());
     }
 
     @Test
@@ -148,7 +151,7 @@ class AuditionPostIntegrationClientTest {
         });
 
         // Assert
-        assertEquals(SystemException.UNEXPECTED_ERROR, thrownException.getTitle());
+        assertEquals(UNEXPECTED_ERROR, thrownException.getTitle());
     }
 
 }

@@ -1,5 +1,9 @@
 package com.audition.integration;
 
+import static com.audition.constant.ErrorMessages.HTTP_CLIENT_ERROR;
+import static com.audition.constant.ErrorMessages.RESOURCE_NOT_FOUND;
+import static com.audition.constant.ErrorMessages.UNEXPECTED_ERROR;
+
 import com.audition.common.exception.SystemException;
 import com.audition.common.logging.AuditionLogger;
 import com.audition.model.AuditionPost;
@@ -7,7 +11,7 @@ import com.audition.model.Comment;
 import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;
 import java.util.Collections;
 import java.util.List;
-import lombok.AllArgsConstructor;
+import lombok.RequiredArgsConstructor;
 import org.apache.commons.lang3.ObjectUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -22,7 +26,7 @@ import org.springframework.web.client.RestTemplate;
 import org.springframework.web.util.UriComponentsBuilder;
 
 @Component
-@AllArgsConstructor
+@RequiredArgsConstructor
 @SuppressWarnings({"PMD.UnusedPrivateMethod", "PMD.GuardLogStatement"})
 public class AuditionIntegrationClient {
 
@@ -54,7 +58,7 @@ public class AuditionIntegrationClient {
             return restTemplate.getForObject(url, AuditionPost.class);
         } catch (HttpClientErrorException e) {
             if (e.getStatusCode() == HttpStatus.NOT_FOUND) {
-                throw new SystemException("Cannot find a Post with id " + id, SystemException.RESOURCE_NOT_FOUND,
+                throw new SystemException("Cannot find a Post with id " + id, RESOURCE_NOT_FOUND,
                     HttpStatus.NOT_FOUND.value(), e);
             } else {
                 handleHttpClientErrorException("Error fetching post with id " + id, e);
@@ -102,14 +106,13 @@ public class AuditionIntegrationClient {
     private void handleHttpClientErrorException(final String message, final HttpClientErrorException e) {
         final String errorMessage = message + ": " + e.getMessage();
         auditionLogger.error(LOG, errorMessage);
-        throw new SystemException(errorMessage, SystemException.HTTP_CLIENT_ERROR, e.getStatusCode().value(), e);
+        throw new SystemException(errorMessage, HTTP_CLIENT_ERROR, e.getStatusCode().value(), e);
     }
 
     private void handleUnexpectedException(final String message, final Exception e) {
         final String errorMessage = message + ": " + e.getMessage();
         auditionLogger.error(LOG, errorMessage);
-        throw new SystemException(errorMessage, SystemException.UNEXPECTED_ERROR,
-            HttpStatus.INTERNAL_SERVER_ERROR.value(), e);
+        throw new SystemException(errorMessage, UNEXPECTED_ERROR, HttpStatus.INTERNAL_SERVER_ERROR.value(), e);
     }
 
     private List<AuditionPost> getPostsFallback(final Throwable t) {

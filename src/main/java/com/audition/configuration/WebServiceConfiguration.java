@@ -1,5 +1,7 @@
 package com.audition.configuration;
 
+import static com.audition.constant.DateConstants.YEAR_MONTH_DAY_PATTERN;
+
 import com.audition.common.logging.AuditionLogger;
 import com.audition.configuration.interceptor.LoggingInterceptor;
 import com.audition.configuration.interceptor.TracingInterceptor;
@@ -11,7 +13,7 @@ import com.fasterxml.jackson.databind.SerializationFeature;
 import java.text.SimpleDateFormat;
 import java.util.Collections;
 import java.util.Locale;
-import lombok.AllArgsConstructor;
+import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.client.BufferingClientHttpRequestFactory;
@@ -22,10 +24,9 @@ import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
 @Configuration
-@AllArgsConstructor
+@RequiredArgsConstructor
 public class WebServiceConfiguration implements WebMvcConfigurer {
 
-    private static final String YEAR_MONTH_DAY_PATTERN = "yyyy-MM-dd";
     private final TracingInterceptor tracingInterceptor;
     private final AuditionLogger auditionLogger;
 

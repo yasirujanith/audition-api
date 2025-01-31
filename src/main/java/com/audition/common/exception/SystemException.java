@@ -1,5 +1,7 @@
 package com.audition.common.exception;
 
+import static com.audition.constant.ErrorMessages.DEFAULT_TITLE;
+
 import lombok.Getter;
 
 @Getter
@@ -7,11 +9,6 @@ import lombok.Getter;
 public class SystemException extends RuntimeException {
 
     private static final long serialVersionUID = -5876728854007114881L;
-
-    public static final String DEFAULT_TITLE = "API Error Occurred";
-    public static final String HTTP_CLIENT_ERROR = "HTTP Client Error";
-    public static final String RESOURCE_NOT_FOUND = "Resource Not Found";
-    public static final String UNEXPECTED_ERROR = "Unexpected Error";
 
     private Integer statusCode;
     private String title;

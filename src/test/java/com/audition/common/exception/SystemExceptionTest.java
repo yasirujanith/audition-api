@@ -1,5 +1,6 @@
 package com.audition.common.exception;
 
+import static com.audition.constant.ErrorMessages.DEFAULT_TITLE;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
 
@@ -25,7 +26,7 @@ class SystemExceptionTest {
     void testMessageConstructor() {
         final SystemException exception = new SystemException(TEST_MESSAGE);
         assertEquals(TEST_MESSAGE, exception.getMessage());
-        assertEquals(SystemException.DEFAULT_TITLE, exception.getTitle());
+        assertEquals(DEFAULT_TITLE, exception.getTitle());
         assertNull(exception.getStatusCode());
         assertNull(exception.getDetail());
     }
@@ -34,7 +35,7 @@ class SystemExceptionTest {
     void testMessageAndErrorCodeConstructor() {
         final SystemException exception = new SystemException(TEST_MESSAGE, 400);
         assertEquals(TEST_MESSAGE, exception.getMessage());
-        assertEquals(SystemException.DEFAULT_TITLE, exception.getTitle());
+        assertEquals(DEFAULT_TITLE, exception.getTitle());
         assertEquals(400, exception.getStatusCode());
         assertNull(exception.getDetail());
     }
@@ -44,7 +45,7 @@ class SystemExceptionTest {
         final Throwable cause = new Throwable(CAUSE);
         final SystemException exception = new SystemException(TEST_MESSAGE, cause);
         assertEquals(TEST_MESSAGE, exception.getMessage());
-        assertEquals(SystemException.DEFAULT_TITLE, exception.getTitle());
+        assertEquals(DEFAULT_TITLE, exception.getTitle());
         assertNull(exception.getStatusCode());
         assertNull(exception.getDetail());
         assertEquals(cause, exception.getCause());
@@ -75,7 +76,7 @@ class SystemExceptionTest {
         final Throwable cause = new Throwable(CAUSE);
         final SystemException exception = new SystemException(DETAIL, 400, cause);
         assertEquals(DETAIL, exception.getMessage());
-        assertEquals(SystemException.DEFAULT_TITLE, exception.getTitle());
+        assertEquals(DEFAULT_TITLE, exception.getTitle());
         assertEquals(400, exception.getStatusCode());
         assertEquals(DETAIL, exception.getDetail());
         assertEquals(cause, exception.getCause());

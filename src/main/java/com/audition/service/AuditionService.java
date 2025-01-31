@@ -4,12 +4,12 @@ import com.audition.integration.AuditionIntegrationClient;
 import com.audition.model.AuditionPost;
 import com.audition.model.Comment;
 import java.util.List;
-import lombok.AllArgsConstructor;
+import lombok.RequiredArgsConstructor;
 import org.apache.commons.lang3.ObjectUtils;
 import org.springframework.stereotype.Service;
 
 @Service
-@AllArgsConstructor
+@RequiredArgsConstructor
 public class AuditionService {
 
     private final AuditionIntegrationClient auditionIntegrationClient;

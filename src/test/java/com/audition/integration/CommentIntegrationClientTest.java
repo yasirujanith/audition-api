@@ -1,5 +1,7 @@
 package com.audition.integration;
 
+import static com.audition.constant.ErrorMessages.HTTP_CLIENT_ERROR;
+import static com.audition.constant.ErrorMessages.UNEXPECTED_ERROR;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
@@ -75,7 +77,7 @@ class CommentIntegrationClientTest {
         });
 
         // Assert
-        assertEquals(SystemException.HTTP_CLIENT_ERROR, exception.getTitle());
+        assertEquals(HTTP_CLIENT_ERROR, exception.getTitle());
     }
 
     @Test
@@ -90,7 +92,7 @@ class CommentIntegrationClientTest {
         });
 
         // Assert
-        assertEquals(SystemException.UNEXPECTED_ERROR, exception.getTitle());
+        assertEquals(UNEXPECTED_ERROR, exception.getTitle());
     }
 
     @Test
@@ -120,7 +122,7 @@ class CommentIntegrationClientTest {
         });
 
         // Assert
-        assertEquals(SystemException.HTTP_CLIENT_ERROR, exception.getTitle());
+        assertEquals(HTTP_CLIENT_ERROR, exception.getTitle());
     }
 
     @Test
@@ -135,7 +137,7 @@ class CommentIntegrationClientTest {
         });
 
         // Assert
-        assertEquals(SystemException.UNEXPECTED_ERROR, exception.getTitle());
+        assertEquals(UNEXPECTED_ERROR, exception.getTitle());
     }
 
 }
