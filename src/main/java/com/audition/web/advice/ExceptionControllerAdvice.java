@@ -1,12 +1,14 @@
 package com.audition.web.advice;
 
 import static com.audition.constant.ErrorMessages.DEFAULT_TITLE;
+import static org.springframework.http.HttpStatus.BAD_REQUEST;
 import static org.springframework.http.HttpStatus.INTERNAL_SERVER_ERROR;
 import static org.springframework.http.HttpStatus.METHOD_NOT_ALLOWED;
 
 import com.audition.common.exception.SystemException;
 import com.audition.common.logging.AuditionLogger;
 import io.micrometer.common.util.StringUtils;
+import jakarta.validation.ConstraintViolationException;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -85,6 +87,9 @@ public class ExceptionControllerAdvice extends ResponseEntityExceptionHandler {
             auditionLogger.logHttpStatusCodeError(LOG, notSupportedException.getMessage(),
                 notSupportedException.getStatusCode().value());
             return METHOD_NOT_ALLOWED;
+        } else if (exception instanceof ConstraintViolationException constraintViolationException) {
+            auditionLogger.logHttpStatusCodeError(LOG, constraintViolationException.getMessage(), BAD_REQUEST.value());
+            return BAD_REQUEST;
         }
         return INTERNAL_SERVER_ERROR;
     }
