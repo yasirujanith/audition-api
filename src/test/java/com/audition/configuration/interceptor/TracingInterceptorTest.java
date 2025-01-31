@@ -7,25 +7,30 @@ import com.audition.configuration.ResponseHeaderInjector;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.Getter;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
 import org.mockito.Mockito;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
-import org.springframework.web.servlet.HandlerInterceptor;
+import org.mockito.MockitoAnnotations;
 
-@SpringBootTest
 @Getter
 class TracingInterceptorTest {
 
-    @Autowired
-    private HandlerInterceptor tracingInterceptor;
+    @InjectMocks
+    private TracingInterceptor tracingInterceptor;
 
-    @MockBean
+    @Mock
     private ResponseHeaderInjector responseHeaderInjector;
 
+    @BeforeEach
+    void setUp() {
+        MockitoAnnotations.openMocks(this);
+        tracingInterceptor = new TracingInterceptor(responseHeaderInjector);
+    }
+
     @Test
-    void testPreHandle() throws Exception {
+    void testPreHandle() {
         final HttpServletRequest request = Mockito.mock(HttpServletRequest.class);
         final HttpServletResponse response = Mockito.mock(HttpServletResponse.class);
         final Object handler = new Object();

@@ -11,12 +11,12 @@ import com.audition.model.AuditionPost;
 import java.util.Collections;
 import java.util.List;
 import lombok.Getter;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.MockitoAnnotations;
 
-@SpringBootTest
 @Getter
 class AuditionPostServiceTest {
 
@@ -25,11 +25,16 @@ class AuditionPostServiceTest {
     private static final String BODY_1 = "body1";
     private static final String BODY_2 = "body2";
 
-    @Autowired
+    @InjectMocks
     private AuditionService auditionService;
 
-    @MockBean
+    @Mock
     private AuditionIntegrationClient auditionIntegrationClient;
+
+    @BeforeEach
+    void setUp() {
+        MockitoAnnotations.openMocks(this);
+    }
 
     @Test
     void testGetPostsSuccess() {

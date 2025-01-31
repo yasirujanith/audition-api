@@ -6,22 +6,28 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import lombok.Getter;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.mockito.Mockito;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.MockitoAnnotations;
 import org.slf4j.Logger;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.ProblemDetail;
 
-@SpringBootTest
 @Getter
 @SuppressWarnings("all")
 class AuditionLoggerTest {
 
-    @Autowired
+    @InjectMocks
     private AuditionLogger auditionLogger;
 
-    private static final Logger LOGGER = Mockito.mock(Logger.class);
+    @Mock
+    private Logger LOGGER;
+
+    @BeforeEach
+    void setUp() {
+        MockitoAnnotations.openMocks(this);
+    }
 
     @Test
     void testInfo() {

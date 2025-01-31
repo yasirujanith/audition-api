@@ -10,21 +10,20 @@ import io.micrometer.tracing.TraceContext;
 import io.micrometer.tracing.Tracer;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.Getter;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
+import org.mockito.MockitoAnnotations;
 
-@SpringBootTest
 @Getter
 class ResponseHeaderInjectorTest {
 
-    @Autowired
+    @InjectMocks
     private ResponseHeaderInjector responseHeaderInjector;
 
-    @MockBean
+    @Mock
     private Tracer tracer;
 
     @Mock
@@ -32,6 +31,11 @@ class ResponseHeaderInjectorTest {
 
     @Mock
     private TraceContext traceContext;
+
+    @BeforeEach
+    void setUp() {
+        MockitoAnnotations.openMocks(this);
+    }
 
     @Test
     void testInjectTraceAndSpanIds() {

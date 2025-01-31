@@ -12,19 +12,17 @@ import java.nio.charset.StandardCharsets;
 import lombok.Getter;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
-import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.HttpRequest;
 import org.springframework.http.client.ClientHttpRequestExecution;
 import org.springframework.http.client.ClientHttpResponse;
 
-@SpringBootTest
 @Getter
 class LoggingInterceptorTest {
 
-    @MockBean
+    @InjectMocks
     AuditionLogger auditionLogger;
 
     @Mock

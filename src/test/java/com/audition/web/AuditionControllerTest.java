@@ -5,27 +5,36 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.when;
 
+import com.audition.common.logging.AuditionLogger;
 import com.audition.model.AuditionPost;
 import com.audition.model.Comment;
 import com.audition.service.AuditionService;
 import java.util.Collections;
 import java.util.List;
 import lombok.Getter;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.MockitoAnnotations;
 import org.springframework.http.ResponseEntity;
 
-@SpringBootTest
 @Getter
 class AuditionControllerTest {
 
-    @Autowired
+    @InjectMocks
     private AuditionController auditionController;
 
-    @MockBean
+    @Mock
     private AuditionService auditionService;
+
+    @Mock
+    private AuditionLogger auditionLogger;
+
+    @BeforeEach
+    void setUp() {
+        MockitoAnnotations.openMocks(this);
+    }
 
     @Test
     void testGetPostsSuccess() {
