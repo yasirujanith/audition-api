@@ -1,25 +1,22 @@
 package com.audition.integration;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.ArgumentMatchers.isNull;
 import static org.mockito.Mockito.when;
 
-import com.audition.common.exception.SystemException;
 import com.audition.common.logging.AuditionLogger;
 import com.audition.model.AuditionPost;
 import java.util.Collections;
 import java.util.List;
 import lombok.Getter;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.InjectMocks;
-import org.mockito.Mock;
-import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
@@ -28,25 +25,20 @@ import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestClientException;
 import org.springframework.web.client.RestTemplate;
 
-@ExtendWith(MockitoExtension.class)
+@SpringBootTest
 @Getter
-class AuditionPostIntegrationClientTest {
+class AuditionPostIntegrationClientWithCBTest {
 
     private static final String ERROR = "Error";
 
-    @InjectMocks
+    @Autowired
     private AuditionIntegrationClient auditionIntegrationClient;
 
-    @Mock
+    @MockBean
     private RestTemplate restTemplate;
 
-    @Mock
+    @MockBean
     private AuditionLogger auditionLogger;
-
-    @BeforeEach
-    void setUp() {
-        auditionIntegrationClient = new AuditionIntegrationClient(restTemplate, auditionLogger);
-    }
 
     @Test
     void testGetPostsSuccess() {
@@ -64,33 +56,29 @@ class AuditionPostIntegrationClientTest {
     }
 
     @Test
-    void testGetPostsHttpClientErrorException() {
+    void testGetPostsHttpClientErrorExceptionWithCircuitBreaker() {
         // Setup
         when(restTemplate.exchange(anyString(), eq(HttpMethod.GET), isNull(), any(ParameterizedTypeReference.class)))
             .thenThrow(new HttpClientErrorException(HttpStatus.BAD_REQUEST));
 
         // Act
-        final SystemException exception = assertThrows(SystemException.class, () -> {
-            auditionIntegrationClient.getPosts();
-        });
+        final List<AuditionPost> actualPosts = auditionIntegrationClient.getPosts();
 
         // Assert
-        assertEquals(SystemException.HTTP_CLIENT_ERROR, exception.getTitle());
+        assertEquals(0, actualPosts.size());
     }
 
     @Test
-    void testGetPostsRestClientException() {
+    void testGetPostsRestClientExceptionWithCircuitBreaker() {
         // Setup
         when(restTemplate.exchange(anyString(), eq(HttpMethod.GET), isNull(), any(ParameterizedTypeReference.class)))
             .thenThrow(new RestClientException(ERROR));
 
         // Act
-        final SystemException exception = assertThrows(SystemException.class, () -> {
-            auditionIntegrationClient.getPosts();
-        });
+        final List<AuditionPost> actualPosts = auditionIntegrationClient.getPosts();
 
         // Assert
-        assertEquals(SystemException.UNEXPECTED_ERROR, exception.getTitle());
+        assertEquals(0, actualPosts.size());
     }
 
     @Test
@@ -107,48 +95,42 @@ class AuditionPostIntegrationClientTest {
     }
 
     @Test
-    void testGetPostByIdHttpClientErrorExceptionNotFound() {
+    void testGetPostByIdHttpClientErrorExceptionNotFoundWithCircuitBreaker() {
         // Setup
         final HttpClientErrorException exception = new HttpClientErrorException(HttpStatus.NOT_FOUND);
         when(restTemplate.getForObject(anyString(), eq(AuditionPost.class))).thenThrow(exception);
 
         // Act
-        final SystemException thrownException = assertThrows(SystemException.class, () -> {
-            auditionIntegrationClient.getPostById("1");
-        });
+        final AuditionPost actualPost = auditionIntegrationClient.getPostById("1");
 
         // Assert
-        assertEquals(SystemException.RESOURCE_NOT_FOUND, thrownException.getTitle());
+        assertNull(actualPost);
     }
 
     @Test
-    void testGetPostByIdHttpClientErrorExceptionOther() {
+    void testGetPostByIdHttpClientErrorExceptionOtherWithCircuitBreaker() {
         // Setup
         final HttpClientErrorException exception = new HttpClientErrorException(HttpStatus.BAD_REQUEST);
         when(restTemplate.getForObject(anyString(), eq(AuditionPost.class))).thenThrow(exception);
 
         // Act
-        final SystemException thrownException = assertThrows(SystemException.class, () -> {
-            auditionIntegrationClient.getPostById("1");
-        });
+        final AuditionPost actualPost = auditionIntegrationClient.getPostById("1");
 
         // Assert
-        assertEquals(SystemException.HTTP_CLIENT_ERROR, thrownException.getTitle());
+        assertNull(actualPost);
     }
 
     @Test
-    void testGetPostByIdRestClientException() {
+    void testGetPostByIdRestClientExceptionWithCircuitBreaker() {
         // Setup
         when(restTemplate.getForObject(anyString(), eq(AuditionPost.class))).thenThrow(
             new RestClientException(ERROR));
 
         // Act
-        final SystemException thrownException = assertThrows(SystemException.class, () -> {
-            auditionIntegrationClient.getPostById("1");
-        });
+        final AuditionPost actualPost = auditionIntegrationClient.getPostById("1");
 
         // Assert
-        assertEquals(SystemException.UNEXPECTED_ERROR, thrownException.getTitle());
+        assertNull(actualPost);
     }
 
 }

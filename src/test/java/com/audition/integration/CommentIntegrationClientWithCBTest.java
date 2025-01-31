@@ -1,25 +1,21 @@
 package com.audition.integration;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.ArgumentMatchers.isNull;
 import static org.mockito.Mockito.when;
 
-import com.audition.common.exception.SystemException;
 import com.audition.common.logging.AuditionLogger;
 import com.audition.model.Comment;
 import java.util.Collections;
 import java.util.List;
 import lombok.Getter;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.InjectMocks;
-import org.mockito.Mock;
-import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
@@ -28,25 +24,20 @@ import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestClientException;
 import org.springframework.web.client.RestTemplate;
 
-@ExtendWith(MockitoExtension.class)
+@SpringBootTest
 @Getter
-class CommentIntegrationClientTest {
+class CommentIntegrationClientWithCBTest {
 
     private static final String ERROR = "Error";
 
-    @InjectMocks
+    @Autowired
     private AuditionIntegrationClient auditionIntegrationClient;
 
-    @Mock
+    @MockBean
     private RestTemplate restTemplate;
 
-    @Mock
+    @MockBean
     private AuditionLogger auditionLogger;
-
-    @BeforeEach
-    void setUp() {
-        auditionIntegrationClient = new AuditionIntegrationClient(restTemplate, auditionLogger);
-    }
 
     @Test
     void testGetCommentsForPostSuccess() {
@@ -64,33 +55,29 @@ class CommentIntegrationClientTest {
     }
 
     @Test
-    void testGetCommentsForPostHttpClientErrorException() {
+    void testGetCommentsForPostHttpClientErrorExceptionWithCircuitBreaker() {
         // Setup
         when(restTemplate.exchange(anyString(), eq(HttpMethod.GET), isNull(), any(ParameterizedTypeReference.class)))
             .thenThrow(new HttpClientErrorException(HttpStatus.BAD_REQUEST));
 
         // Act
-        final SystemException exception = assertThrows(SystemException.class, () -> {
-            auditionIntegrationClient.getCommentsForPost("1");
-        });
+        final List<Comment> actualComments = auditionIntegrationClient.getCommentsForPost("1");
 
         // Assert
-        assertEquals(SystemException.HTTP_CLIENT_ERROR, exception.getTitle());
+        assertEquals(0, actualComments.size());
     }
 
     @Test
-    void testGetCommentsForPostRestClientException() {
+    void testGetCommentsForPostRestClientExceptionWithCircuitBreaker() {
         // Setup
         when(restTemplate.exchange(anyString(), eq(HttpMethod.GET), isNull(), any(ParameterizedTypeReference.class)))
             .thenThrow(new RestClientException(ERROR));
 
         // Act
-        final SystemException exception = assertThrows(SystemException.class, () -> {
-            auditionIntegrationClient.getCommentsForPost("1");
-        });
+        final List<Comment> actualComments = auditionIntegrationClient.getCommentsForPost("1");
 
         // Assert
-        assertEquals(SystemException.UNEXPECTED_ERROR, exception.getTitle());
+        assertEquals(0, actualComments.size());
     }
 
     @Test
@@ -109,33 +96,29 @@ class CommentIntegrationClientTest {
     }
 
     @Test
-    void testGetCommentsByPostIdHttpClientErrorException() {
+    void testGetCommentsByPostIdHttpClientErrorExceptionWithCircuitBreaker() {
         // Setup
         when(restTemplate.exchange(anyString(), eq(HttpMethod.GET), isNull(), any(ParameterizedTypeReference.class)))
             .thenThrow(new HttpClientErrorException(HttpStatus.BAD_REQUEST));
 
         // Act
-        final SystemException exception = assertThrows(SystemException.class, () -> {
-            auditionIntegrationClient.getCommentsByPostId("1");
-        });
+        final List<Comment> actualComments = auditionIntegrationClient.getCommentsByPostId("1");
 
         // Assert
-        assertEquals(SystemException.HTTP_CLIENT_ERROR, exception.getTitle());
+        assertEquals(0, actualComments.size());
     }
 
     @Test
-    void testGetCommentsByPostIdRestClientException() {
+    void testGetCommentsByPostIdRestClientExceptionWithCircuitBreaker() {
         // Setup
         when(restTemplate.exchange(anyString(), eq(HttpMethod.GET), isNull(), any(ParameterizedTypeReference.class)))
             .thenThrow(new RestClientException(ERROR));
 
         // Act
-        final SystemException exception = assertThrows(SystemException.class, () -> {
-            auditionIntegrationClient.getCommentsByPostId("1");
-        });
+        final List<Comment> actualComments = auditionIntegrationClient.getCommentsByPostId("1");
 
         // Assert
-        assertEquals(SystemException.UNEXPECTED_ERROR, exception.getTitle());
+        assertEquals(0, actualComments.size());
     }
 
 }

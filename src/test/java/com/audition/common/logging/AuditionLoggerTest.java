@@ -22,7 +22,7 @@ class AuditionLoggerTest {
     private AuditionLogger auditionLogger;
 
     @Mock
-    private Logger LOGGER;
+    private Logger logger;
 
     @BeforeEach
     void setUp() {
@@ -31,63 +31,63 @@ class AuditionLoggerTest {
 
     @Test
     void testInfo() {
-        when(LOGGER.isInfoEnabled()).thenReturn(true);
-        auditionLogger.info(LOGGER, "Info message");
-        verify(LOGGER).info("Info message");
+        when(logger.isInfoEnabled()).thenReturn(true);
+        auditionLogger.info(logger, "Info message");
+        verify(logger).info("Info message");
     }
 
     @Test
     void testInfoWithObject() {
-        when(LOGGER.isInfoEnabled()).thenReturn(true);
-        auditionLogger.info(LOGGER, "Info message with object", new Object());
-        verify(LOGGER).info(eq("Info message with object"), any(Object.class));
+        when(logger.isInfoEnabled()).thenReturn(true);
+        auditionLogger.info(logger, "Info message with object", new Object());
+        verify(logger).info(eq("Info message with object"), any(Object.class));
     }
 
     @Test
     void testDebug() {
-        when(LOGGER.isDebugEnabled()).thenReturn(true);
-        auditionLogger.debug(LOGGER, "Debug message");
-        verify(LOGGER).debug("Debug message");
+        when(logger.isDebugEnabled()).thenReturn(true);
+        auditionLogger.debug(logger, "Debug message");
+        verify(logger).debug("Debug message");
     }
 
     @Test
     void testWarn() {
-        when(LOGGER.isWarnEnabled()).thenReturn(true);
-        auditionLogger.warn(LOGGER, "Warn message");
-        verify(LOGGER).warn("Warn message");
+        when(logger.isWarnEnabled()).thenReturn(true);
+        auditionLogger.warn(logger, "Warn message");
+        verify(logger).warn("Warn message");
     }
 
     @Test
     void testError() {
-        when(LOGGER.isErrorEnabled()).thenReturn(true);
-        auditionLogger.error(LOGGER, "Error message");
-        verify(LOGGER).error("Error message");
+        when(logger.isErrorEnabled()).thenReturn(true);
+        auditionLogger.error(logger, "Error message");
+        verify(logger).error("Error message");
     }
 
     @Test
     void testLogErrorWithException() {
-        when(LOGGER.isErrorEnabled()).thenReturn(true);
+        when(logger.isErrorEnabled()).thenReturn(true);
         final Exception e = new Exception("Exception message");
-        auditionLogger.logErrorWithException(LOGGER, "Error message with exception", e);
-        verify(LOGGER).error("Error message with exception", e);
+        auditionLogger.logErrorWithException(logger, "Error message with exception", e);
+        verify(logger).error("Error message with exception", e);
     }
 
     @Test
     void testLogStandardProblemDetail() {
-        when(LOGGER.isErrorEnabled()).thenReturn(true);
+        when(logger.isErrorEnabled()).thenReturn(true);
         final ProblemDetail problemDetail = ProblemDetail.forStatus(500);
         problemDetail.setTitle("Title");
         problemDetail.setDetail("Detail");
         final Exception e = new Exception("Exception message");
-        auditionLogger.logStandardProblemDetail(LOGGER, problemDetail, e);
-        verify(LOGGER).error("ProblemDetail [status=500, title=Title, detail=Detail]", e);
+        auditionLogger.logStandardProblemDetail(logger, problemDetail, e);
+        verify(logger).error("ProblemDetail [status=500, title=Title, detail=Detail]", e);
     }
 
     @Test
     void testLogHttpStatusCodeError() {
-        when(LOGGER.isErrorEnabled()).thenReturn(true);
-        auditionLogger.logHttpStatusCodeError(LOGGER, "Error message", 500);
-        verify(LOGGER).error("ErrorResponse [errorCode=500, message=Error message]\n");
+        when(logger.isErrorEnabled()).thenReturn(true);
+        auditionLogger.logHttpStatusCodeError(logger, "Error message", 500);
+        verify(logger).error("ErrorResponse [errorCode=500, message=Error message]\n");
     }
 
 }
