@@ -11,8 +11,8 @@ import com.audition.model.Comment;
 import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;
 import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 import lombok.RequiredArgsConstructor;
-import org.apache.commons.lang3.ObjectUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.core.ParameterizedTypeReference;
@@ -42,7 +42,7 @@ public class AuditionIntegrationClient {
             final ResponseEntity<List<AuditionPost>> response = restTemplate.exchange(POSTS_URL, HttpMethod.GET, null,
                 new ParameterizedTypeReference<>() {
                 });
-            return ObjectUtils.isNotEmpty(response.getBody()) ? response.getBody() : Collections.emptyList();
+            return Optional.ofNullable(response.getBody()).orElse(Collections.emptyList());
         } catch (HttpClientErrorException e) {
             handleHttpClientErrorException("Error fetching posts", e);
         } catch (RestClientException e) {
@@ -77,7 +77,7 @@ public class AuditionIntegrationClient {
             final ResponseEntity<List<Comment>> response = restTemplate.exchange(url, HttpMethod.GET, null,
                 new ParameterizedTypeReference<>() {
                 });
-            return ObjectUtils.isNotEmpty(response.getBody()) ? response.getBody() : Collections.emptyList();
+            return Optional.ofNullable(response.getBody()).orElse(Collections.emptyList());
         } catch (HttpClientErrorException e) {
             handleHttpClientErrorException("Error fetching comments for post with id " + postId, e);
         } catch (RestClientException e) {
@@ -94,7 +94,7 @@ public class AuditionIntegrationClient {
             final ResponseEntity<List<Comment>> response = restTemplate.exchange(url, HttpMethod.GET, null,
                 new ParameterizedTypeReference<>() {
                 });
-            return ObjectUtils.isNotEmpty(response.getBody()) ? response.getBody() : Collections.emptyList();
+            return Optional.ofNullable(response.getBody()).orElse(Collections.emptyList());
         } catch (HttpClientErrorException e) {
             handleHttpClientErrorException("Error fetching comments for post with id " + postId, e);
         } catch (RestClientException e) {

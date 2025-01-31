@@ -1,13 +1,13 @@
 package com.audition.web.advice;
 
 import static com.audition.constant.ErrorMessages.DEFAULT_TITLE;
+import static io.micrometer.common.util.StringUtils.isNotBlank;
 import static org.springframework.http.HttpStatus.BAD_REQUEST;
 import static org.springframework.http.HttpStatus.INTERNAL_SERVER_ERROR;
 import static org.springframework.http.HttpStatus.METHOD_NOT_ALLOWED;
 
 import com.audition.common.exception.SystemException;
 import com.audition.common.logging.AuditionLogger;
-import io.micrometer.common.util.StringUtils;
 import jakarta.validation.ConstraintViolationException;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
@@ -62,7 +62,7 @@ public class ExceptionControllerAdvice extends ResponseEntityExceptionHandler {
     }
 
     private String getMessageFromException(final Exception exception) {
-        if (StringUtils.isNotBlank(exception.getMessage())) {
+        if (isNotBlank(exception.getMessage())) {
             return exception.getMessage();
         }
         return DEFAULT_MESSAGE;
